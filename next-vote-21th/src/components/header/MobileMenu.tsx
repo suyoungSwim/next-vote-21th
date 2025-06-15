@@ -23,7 +23,7 @@ const MobileMenu = ({
   const menuItems = getMenuItems(isLoggedIn, clearAuth);
 
   const itemClass =
-    "text-violet-dark text-heading2 hover:border-violet-dark w-[174px] cursor-pointer border border-transparent py-[10px] pr-4 text-right";
+    "text-violet-dark text-heading2 hover:border-violet-dark min-w-[174px] cursor-pointer border border-transparent py-[10px] pr-4 text-right";
 
   return (
     <div
@@ -59,8 +59,8 @@ const MobileMenu = ({
           return (
             <li key={label}>
               {href ? (
-                <Link href={href} onClick={handleClick} className={itemClass}>
-                  {label}
+                <Link href={href} onClick={handleClick}>
+                  <button className={itemClass}>{label}</button>
                 </Link>
               ) : (
                 <button onClick={handleClick} className={itemClass}>

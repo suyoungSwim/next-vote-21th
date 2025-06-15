@@ -3,6 +3,8 @@ import localFont from "next/font/local";
 
 import "@/styles/globals.css";
 
+import ReactQueryProvider from "@/utils/reactQueryProvider";
+
 import Header from "@/components/header/Header";
 
 const suit = localFont({
@@ -37,10 +39,12 @@ export default function RootLayout({
   return (
     <html lang="ko" className={suit.className}>
       <body>
-        <div className="flex h-screen w-screen">
-          <Header />
-          {children}
-        </div>
+        <ReactQueryProvider>
+          <div className="flex h-screen w-screen">
+            <Header />
+            {children}
+          </div>
+        </ReactQueryProvider>
       </body>
     </html>
   );

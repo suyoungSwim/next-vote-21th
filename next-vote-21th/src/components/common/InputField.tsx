@@ -12,7 +12,9 @@ interface InputFieldProps {
   onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
   onCheckDuplicate?: (value: string) => void;
   showCheckButton?: boolean;
+  disabledCheckButton?: boolean;
   error?: string;
+  successMsg?: string;
   status?: "error" | "success";
   autoComplete?: string;
 }
@@ -24,10 +26,12 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
       type = "text",
       placeholder,
       showCheckButton,
+      disabledCheckButton,
       onCheckDuplicate,
       error,
       status,
-      ...rest // 여기 중요! register에서 넘어오는 모든 props를 포함함
+      successMsg,
+      ...rest
     },
     ref,
   ) => {
@@ -50,7 +54,7 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
                 "text-cap1-med md:text-body2-med min-w-[226px] border-b border-black py-1 outline-none placeholder:text-gray-600",
                 showCheckButton && !isPasswordField && "pr-[60px]",
               )}
-              {...rest} // 👈 이게 핵심!
+              {...rest}
             />
 
             {isPasswordField && (
@@ -66,8 +70,14 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
             {showCheckButton && !isPasswordField && (
               <button
                 type="button"
+                disabled={disabledCheckButton}
                 onClick={() => onCheckDuplicate?.(rest.value?.toString() ?? "")}
-                className="text-cap1-med bg-green text-gray-0 hover:bg-green-dark absolute top-[-2px] right-0 w-fit cursor-pointer rounded-[10px] px-[6px] py-1 md:top-[1px]"
+                className={clsx(
+                  "text-cap1-med absolute top-[-2px] right-0 w-fit rounded-[10px] px-[6px] py-1 md:top-[1px]",
+                  disabledCheckButton
+                    ? "text-gray-0 cursor-not-allowed bg-gray-300"
+                    : "bg-green text-gray-0 hover:bg-green-dark",
+                )}
               >
                 중복 확인
               </button>
@@ -80,7 +90,11 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
                 status === "success" && "text-green",
               )}
             >
-              {error || " "}
+              {error
+                ? error
+                : status === "success" && successMsg
+                  ? successMsg
+                  : " "}
             </span>
           </div>
         </div>

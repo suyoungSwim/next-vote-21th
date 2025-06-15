@@ -10,38 +10,46 @@ import {
   checkUsernameDuplicate,
 } from "@/apis/checkDuplicate";
 
-// 상태 타입: 성공 / 실패 / undefined
 type Status = "error" | "success" | undefined;
 
-// 훅에 전달되는 props 타입 정의
 interface UseDuplicateCheckerProps<T extends FieldValues> {
   setError: UseFormSetError<T>;
   clearErrors: UseFormClearErrors<T>;
   setStatuses: React.Dispatch<
-    React.SetStateAction<{ id: Status; email: Status }>
+    React.SetStateAction<{ username: Status; email: Status }>
+  >;
+  setSuccessMsgs: React.Dispatch<
+    React.SetStateAction<{
+      username: string | undefined;
+      email: string | undefined;
+    }>
   >;
 }
 
-// 실제 훅 구현
 export const useDuplicateChecker = <T extends FieldValues>({
   setError,
   clearErrors,
   setStatuses,
+  setSuccessMsgs,
 }: UseDuplicateCheckerProps<T>) => {
-  // type은 "id" | "email"이어야 하고, Path<T> 타입으로 제한
-  const check = async (type: Path<T> & ("id" | "email"), value: string) => {
+  const check = async (
+    type: Path<T> & ("username" | "email"),
+    value: string,
+  ) => {
     const checkFn =
-      type === "id" ? checkUsernameDuplicate : checkEmailDuplicate;
+      type === "username" ? checkUsernameDuplicate : checkEmailDuplicate;
 
     try {
-      const { isDuplicate, message } = await checkFn(value);
+      const { exists, message } = await checkFn(value);
 
-      if (isDuplicate) {
+      if (exists) {
         setError(type, { message });
         setStatuses(prev => ({ ...prev, [type]: "error" }));
+        setSuccessMsgs(prev => ({ ...prev, [type]: undefined }));
       } else {
         clearErrors(type);
         setStatuses(prev => ({ ...prev, [type]: "success" }));
+        setSuccessMsgs(prev => ({ ...prev, [type]: message }));
       }
     } catch (err) {
       setError(type, {

@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { signupSchema } from "@/schemas/signupSchema";
@@ -18,7 +18,7 @@ import PartSelector from "@/components/signup/PartSelector";
 import SignupFormFields from "@/components/signup/SignUpFormFields";
 import TeamSelector from "@/components/signup/TeamSelector";
 
-import type { SignupForm } from "@/types/signup/dto";
+import type { SignupForm } from "@/types/auth/dto";
 
 const SignUpPage = () => {
   const router = useRouter();
@@ -37,10 +37,17 @@ const SignUpPage = () => {
   } = useTeamSelection();
 
   const [statuses, setStatuses] = useState<{
-    id: "error" | "success" | undefined;
+    username: "error" | "success" | undefined;
     email: "error" | "success" | undefined;
   }>({
-    id: undefined,
+    username: undefined,
+    email: undefined,
+  });
+  const [successMsgs, setSuccessMsgs] = useState<{
+    username: string | undefined;
+    email: string | undefined;
+  }>({
+    username: undefined,
     email: undefined,
   });
 
@@ -55,13 +62,14 @@ const SignUpPage = () => {
     formState: { errors },
   } = useForm<SignupForm>({
     resolver: zodResolver(signupSchema),
-    mode: "onBlur",
+    mode: "onChange",
   });
 
   const { check } = useDuplicateChecker<SignupForm>({
     setError,
     clearErrors,
     setStatuses,
+    setSuccessMsgs,
   });
 
   const onSubmit = async (form: SignupForm) => {
@@ -69,7 +77,7 @@ const SignUpPage = () => {
 
     const payload = {
       name: selectedMember,
-      username: form.id,
+      username: form.username,
       password: form.password,
       email: form.email,
       position: positionKey,
@@ -81,7 +89,7 @@ const SignUpPage = () => {
   };
 
   const hasEmpty =
-    !watch("id") ||
+    !watch("username") ||
     !watch("email") ||
     !watch("password") ||
     !watch("confirmPassword");
@@ -91,8 +99,10 @@ const SignUpPage = () => {
     !positionKey ||
     !selectedTeam ||
     !selectedMember ||
-    statuses.id !== "success" ||
-    statuses.email !== "success";
+    statuses.username !== "success" ||
+    statuses.email !== "success" ||
+    !!errors.password ||
+    !!errors.confirmPassword;
 
   return (
     <div className="scrollbar-hide flex min-h-screen w-screen flex-col items-center overflow-y-auto pt-[124px] pb-9 md:pt-[121px]">
@@ -133,6 +143,9 @@ const SignUpPage = () => {
             errors={errors}
             watch={watch}
             statuses={statuses}
+            setStatuses={setStatuses}
+            successMsgs={successMsgs}
+            setSuccessMsgs={setSuccessMsgs}
             check={check}
           />
 

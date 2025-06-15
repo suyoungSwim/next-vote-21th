@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const signupSchema = z
   .object({
-    id: z
+    username: z
       .string()
       .min(6, "아이디는 6자 이상이어야 합니다.")
       .max(20, "아이디는 20자 이하여야 합니다."),
